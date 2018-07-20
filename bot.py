@@ -13,14 +13,6 @@ from dbQuery import Query
 bd = Query()
 bot = telebot.TeleBot(config.token)
 # Дописать проверку на ДР
-# print('users-> ', bd.getUsers())
-# print('gift_events->', bd.getMySelect('select * from events_gift'))
-# print('gift_descript->', bd.getMySelect('select * from gift_descript'))
-# print('gift_outs->', bd.getMySelect('select * from gift_outs'))
-# current_date = datetime.datetime.now()
-# test = utils.bd.getUserByDtBirth(current_date)
-# print(test)
-# utils.check_birthday(bot, current_date)
 
 
 # Начало диалога
