@@ -34,8 +34,10 @@ def gift_giving(bd, bot, id_user, id_event):
         gift = random.choice(new_list)  # Выбираем рандомом подарок
         bd.addGiftByUserIdEventGift(id_user, gift['id_event_gift'])  # Дарим подарок
         bd.changeCountGiftByIdGift(gift['id_gift'])  # Уменьшаем количество подарков в базе
-        bot.send_message(id_user, messages.s_gift + gift['name'] + " (" +
-                         gift['descript'] + ")", reply_markup=markups.keyboardMain)
+        # bot.send_message(id_user, messages.s_gift + gift['name'] + " (" +
+        #                  gift['descript'] + ")", reply_markup=markups.keyboardMain)
+        bot.send_message(id_user, messages.s_gift + gift['descript'] + messages.s_gift2,
+                         reply_markup=markups.keyboardMain)
 
 
 # Проверка дня рождения
