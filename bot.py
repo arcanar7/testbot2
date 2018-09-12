@@ -71,7 +71,7 @@ def gifts(message):
 
 
 @bot.message_handler(commands=["Пригласить_друга"])
-def gifts(message):
+def invite_friend(message):
     if utils.validate_state2(message.chat.id, utils.States.S_MENU.value):
         user_id = str(message.chat.id)
         bot_name = 'vlgTest1Bot'
@@ -82,12 +82,18 @@ def gifts(message):
         bot.send_message(message.chat.id, messages.s_qr)
         bot.send_photo(message.chat.id, open(tmp_path + img_name + '.png', 'rb'))
         os.remove(tmp_path + img_name + '.png')
+        bot.send_message(message.chat.id, link)
 
 
 @bot.message_handler(commands=["Сканировать_QR-код"])
-def gifts(message):
+def create_qr(message):
     if utils.validate_state2(message.chat.id, utils.States.S_MENU.value):
         bot.send_message(message.chat.id, "Данный раздел в разработке.")
+
+
+@bot.message_handler(content_types=["text"])
+def something_wrong(message):
+    bot.send_message(message.chat.id, messages.s_text)
 
 
 if __name__ == '__main__':
