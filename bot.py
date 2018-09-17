@@ -85,12 +85,6 @@ def invite_friend(message):
         bot.send_message(message.chat.id, link)
 
 
-@bot.message_handler(commands=["Сканировать_QR-код"])
-def create_qr(message):
-    if utils.validate_state2(message.chat.id, utils.States.S_MENU.value):
-        bot.send_message(message.chat.id, "Данный раздел в разработке.")
-
-
 @bot.message_handler(content_types=["text"])
 def something_wrong(message):
     bot.send_message(message.chat.id, messages.s_text)
