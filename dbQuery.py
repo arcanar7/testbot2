@@ -107,7 +107,7 @@ class Query:
     def getDescriptGiftEventsById(self, id_event):
         sql = """
             select 
-                gf.id id_gift, gf.cnt, gf.name, eg.id id_event_gift, ed.descript
+                gf.id id_gift, gf.cnt, gf.name, gf.img, eg.id id_event_gift, ed.descript
             from events_descript ed
                 left join events_gift eg on eg.id_event = ed.id
                 left join gift_descript gf on gf.id = eg.id_gift

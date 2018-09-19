@@ -36,8 +36,10 @@ def gift_giving(bd, bot, id_user, id_event):
         bd.changeCountGiftByIdGift(gift['id_gift'])  # Уменьшаем количество подарков в базе
         # bot.send_message(id_user, messages.s_gift + gift['name'] + " (" +
         #                  gift['descript'] + ")", reply_markup=markups.keyboardMain)
-        bot.send_message(id_user, messages.s_gift + gift['descript'] + messages.s_gift2,
+        bot.send_message(id_user, messages.s_gift + gift['name'] + " (" +
+                         gift['descript'] + ")",
                          reply_markup=markups.keyboardMain)
+        bot.send_photo(id_user, (open('APBot2test/media/' + gift['img'], 'rb')), reply_markup=markups.keyboardMain)
 
 
 # Проверка дня рождения
