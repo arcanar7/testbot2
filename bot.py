@@ -67,7 +67,8 @@ def user_entering_birthday(message):
 @bot.message_handler(commands=["Подарки"])
 def gifts(message):
     if utils.validate_state2(message.chat.id, utils.States.S_MENU.value):
-        bot.send_message(message.chat.id, messages.s_gifts + utils.get_users_gifts(bd, message.chat.id))
+        bot.send_message(message.chat.id, messages.s_gifts + utils.get_users_gifts(bd, message.chat.id),
+                         reply_markup=markups.keyboardMain)
 
 
 @bot.message_handler(commands=["Пригласить_друга"])
@@ -79,15 +80,15 @@ def invite_friend(message):
         tmp_path = 'tmp/'
         link = 'https://telegram.me/' + bot_name + '?start=' + user_id
         qr.createQR(tmp_path, img_name, link)
-        bot.send_message(message.chat.id, messages.s_qr)
-        bot.send_photo(message.chat.id, open(tmp_path + img_name + '.png', 'rb'))
+        bot.send_message(message.chat.id, messages.s_qr, reply_markup=markups.keyboardMain)
+        bot.send_photo(message.chat.id, open(tmp_path + img_name + '.png', 'rb'), reply_markup=markups.keyboardMain)
         os.remove(tmp_path + img_name + '.png')
-        bot.send_message(message.chat.id, link)
+        bot.send_message(message.chat.id, link, reply_markup=markups.keyboardMain)
 
 
 @bot.message_handler(content_types=["text"])
 def something_wrong(message):
-    bot.send_message(message.chat.id, messages.s_text)
+    bot.send_message(message.chat.id, messages.s_text, reply_markup=markups.keyboardMain)
 
 
 if __name__ == '__main__':
