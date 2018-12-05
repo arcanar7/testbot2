@@ -10,6 +10,7 @@ import os
 from dbQuery import Query
 
 
+
 bd = Query()
 bot = telebot.TeleBot(config.token)
 bot_name = telebot.TeleBot(config.bot_name)
