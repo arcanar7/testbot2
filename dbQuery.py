@@ -159,6 +159,15 @@ class Query:
         sql = "select id_user from users where date_format(NOW(), '%d.%m') = date_format(dt_birth, '%d.%m')"
         return Query.selectData(self, sql)
 
+    #
+    # Обновить статус юзера
+    #
+    def updatestatus(self, id_user, status):
+        sql = "update users set status = '{}', dt_last_up = now() where id_user = '{}'".format(status, id_user)
+        return Query.insertUpdateData(self, sql)
+
+
+
     ###### -- внутренние функции класса #
 
     # def __init__(self):
