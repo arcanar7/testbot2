@@ -92,7 +92,7 @@ def invite_friend(message):
         # bot_name = telebot.TeleBot(config.bot_name)
         img_name = 'qr-' + user_id
         tmp_path = 'tmp/'
-        link = 'https://telegram.me/' +  'nextkz_bot' + '?start=' + user_id
+        link = 'https://telegram.me/' + 'nextkz_bot' + '?start=' + user_id
         qr.createQR(tmp_path, img_name, link)
         bot.send_message(message.chat.id, messages.s_qr, reply_markup=markups.keyboardMain)
         bot.send_photo(message.chat.id, open(tmp_path + img_name + '.png', 'rb'), reply_markup=markups.keyboardMain)
