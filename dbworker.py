@@ -2,6 +2,7 @@
 import config
 import utils
 import shelve
+import pickle
 
 
 # Пытаемся узнать из базы «состояние» пользователя

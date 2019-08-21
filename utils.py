@@ -18,7 +18,7 @@ def validate_date(date_text):
 
 # Преобразование строки в дату
 def convert_date(date_text):
-        return datetime.datetime.strptime(date_text, "%d.%m.%Y")
+    return datetime.datetime.strptime(date_text, "%d.%m.%Y")
 
 
 # Дарим подарок юзеру
@@ -34,12 +34,16 @@ def gift_giving(bd, bot, id_user, id_event):
         gift = random.choice(new_list)  # Выбираем рандомом подарок
         bd.addGiftByUserIdEventGift(id_user, gift['id_event_gift'])  # Дарим подарок
         bd.changeCountGiftByIdGift(gift['id_gift'])  # Уменьшаем количество подарков в базе
+
         # bot.send_message(id_user, messages.s_gift + gift['name'] + " (" +
         #                  gift['descript'] + ")", reply_markup=markups.keyboardMain)
-        bot.send_message(id_user, messages.s_gift + gift['name'] + " (" +
-                         gift['descript'] + ")",
+
+        bot.send_message(id_user, f'{messages.s_gift}{gift["name"]}\n{gift["descript"]}😊\n{messages.s_gifts_addr}',
                          reply_markup=markups.keyboardMain)
-        bot.send_photo(id_user, (open('APBot2test/media/' + gift['img'], 'rb')), reply_markup=markups.keyboardMain)
+        bot.send_photo(
+            id_user,
+            (open(f'/home/ubuntu/bots/kidsReferal/env/APBot2test/media/{gift["img"]}', 'rb')),
+            reply_markup=markups.keyboardMain)
 
 
 # Проверка дня рождения
@@ -51,13 +55,19 @@ def check_birthday(bd, bot, current_date):
 
 
 # Получение списка подарков юзера
+# def get_users_gifts(bd, user_id):
+#     spisok = bd.getGiftByIdUser(user_id)
+#     stroka = ''
+#     try:
+#         for i in spisok:
+#             stroka += "Название: " + i['name'] + ". Статус: " + i['status'] + "\n"
+#         return stroka
+#     except TypeError:
+#         return messages.s_error
+# Возвращаем полный список
 def get_users_gifts(bd, user_id):
-    spisok = bd.getGiftByIdUser(user_id)
-    stroka = ''
     try:
-        for i in spisok:
-            stroka += "Название: " + i['name'] + ". Статус: " + i['status'] + "\n"
-        return stroka
+        return bd.getGiftByIdUser(user_id)
     except TypeError:
         return messages.s_error
 
@@ -102,8 +112,8 @@ def validate_state2(user_id, states):
 def validate_ref(bd, bot, user_id):
     id_invite = int(bd.getid_invite(user_id)[0]['id_invite'])
     if id_invite != user_id:
-        gift_giving(bd, bot, id_invite, 2)
         gift_giving(bd, bot, user_id, 3)
+        gift_giving(bd, bot, id_invite, 2)
     else:
         gift_giving(bd, bot, user_id, 1)
 

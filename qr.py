@@ -6,7 +6,7 @@ import re                               # pip install pypng
 
 def createQR(pathToSave, imgName, qrText):
     q = pyqrcode.create(qrText)
-    q.png(pathToSave + str(imgName) + ".png", scale=8)
+    q.png(f'{pathToSave}{str(imgName)}.png', scale=8)
     print('QR-code has been created')
 
 

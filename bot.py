@@ -8,11 +8,12 @@ import messages
 import qr
 import os
 from dbQuery import Query
+import cherrypy
 
 
 bd = Query()
 bot = telebot.TeleBot(config.token)
-# Дописать проверку на ДР
+# bot_name = telebot.TeleBot(config.bot_name)
 
 
 # Начало диалога
@@ -53,7 +54,8 @@ def user_entering_birthday(message):
     # На данном этапе мы уверены, что message.text можно преобразовать в дату, поэтому ничем не рискуем
     birthday = utils.convert_date(message.text)
     current_date = datetime.datetime.now()
-    if (current_date.year - birthday.year) > 100 or (current_date.year - birthday.year) < 5:
+
+    if (current_date.year - birthday.year) > 100 or (current_date.year - birthday.year) < 2:
         bot.send_message(message.chat.id, messages.s_birth_cheat)
         return
     else:
@@ -67,22 +69,30 @@ def user_entering_birthday(message):
 @bot.message_handler(commands=["Подарки"])
 def gifts(message):
     if utils.validate_state2(message.chat.id, utils.States.S_MENU.value):
-        bot.send_message(message.chat.id, messages.s_gifts + utils.get_users_gifts(bd, message.chat.id),
-                         reply_markup=markups.keyboardMain)
+        gifts_list = utils.get_users_gifts(bd, message.chat.id)
+        bot.send_message(message.chat.id, messages.s_gifts, reply_markup=markups.keyboardMain)
+
+        for i in gifts_list:
+            msg = f"Название: {i['name']}. Статус: {i['status']}"
+            bot.send_message(message.chat.id, msg, reply_markup=markups.keyboardMain)
+
+        # bot.send_message(message.chat.id, messages.s_gifts + utils.get_users_gifts(bd, message.chat.id),
+        # reply_markup=markups.keyboardMain)
 
 
 @bot.message_handler(commands=["Пригласить_друга"])
 def invite_friend(message):
     if utils.validate_state2(message.chat.id, utils.States.S_MENU.value):
         user_id = str(message.chat.id)
-        bot_name = 'vlgTest1Bot'
-        img_name = 'qr-' + user_id
+        # bot_name = 'vlgTest1Bot'
+        # bot_name = telebot.TeleBot(config.bot_name)
+        img_name = f'qr-{user_id}'
         tmp_path = 'tmp/'
-        link = 'https://telegram.me/' + bot_name + '?start=' + user_id
+        link = f'https://telegram.me/nextkz_bot?start={user_id}'
         qr.createQR(tmp_path, img_name, link)
         bot.send_message(message.chat.id, messages.s_qr, reply_markup=markups.keyboardMain)
-        bot.send_photo(message.chat.id, open(tmp_path + img_name + '.png', 'rb'), reply_markup=markups.keyboardMain)
-        os.remove(tmp_path + img_name + '.png')
+        bot.send_photo(message.chat.id, open(f'{tmp_path}{img_name}.png', 'rb'), reply_markup=markups.keyboardMain)
+        os.remove(f'{tmp_path}{img_name}.png')
         bot.send_message(message.chat.id, link, reply_markup=markups.keyboardMain)
 
 
@@ -91,5 +101,54 @@ def something_wrong(message):
     bot.send_message(message.chat.id, messages.s_text, reply_markup=markups.keyboardMain)
 
 
+#--------
+
+WEBHOOK_HOST = '54.186.203.196'     # используемый ip сервера
+WEBHOOK_PORT = 443               # 443, 80, 88 или 8443 (порт должен быть открыт!)
+WEBHOOK_LISTEN = '0.0.0.0'   # На некоторых серверах придется указывать такой же IP, что и выше
+
+WEBHOOK_SSL_CERT = 'ssl/webhook_cert.pem'  # Путь к сертификату
+WEBHOOK_SSL_PRIV = 'ssl/webhook_pkey.pem'  # Путь к приватному ключу
+
+WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
+WEBHOOK_URL_PATH = "/%s/" % (config.token)
+
+
+# Наш вебхук-сервер
+class WebhookServer(object):
+    @cherrypy.expose
+    def index(self):
+        if 'content-length' in cherrypy.request.headers and \
+                        'content-type' in cherrypy.request.headers and \
+                        cherrypy.request.headers['content-type'] == 'application/json':
+            length = int(cherrypy.request.headers['content-length'])
+            json_string = cherrypy.request.body.read(length).decode("utf-8")
+            update = telebot.types.Update.de_json(json_string)
+            # Эта функция обеспечивает проверку входящего сообщения
+            bot.process_new_updates([update])
+            return ''
+        else:
+            raise cherrypy.HTTPError(403)
+# -----------------
+
+
 if __name__ == '__main__':
-    bot.polling(none_stop=True)
+    # bot.polling(none_stop=True)
+
+    # Снимаем вебхук перед повторной установкой (избавляет от некоторых проблем)
+    bot.remove_webhook()
+
+    # Ставим заново вебхук
+    bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH, certificate=open(WEBHOOK_SSL_CERT, 'r'))
+
+    # Указываем настройки сервера CherryPy
+    cherrypy.config.update({
+        'server.socket_host': WEBHOOK_LISTEN,
+        'server.socket_port': WEBHOOK_PORT,
+        'server.ssl_module': 'builtin',
+        'server.ssl_certificate': WEBHOOK_SSL_CERT,
+        'server.ssl_private_key': WEBHOOK_SSL_PRIV
+    })
+
+     # Собственно, запуск!
+    cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})

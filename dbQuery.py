@@ -136,7 +136,30 @@ class Query:
         sql = "select descript from events_descript where id = {}".format(id_event)
         return Query.selectData(self, sql)
 
-    ###### -- внутренние функции класса
+
+    #
+    # вывод списка юзеров, чье др наступит через 14 дней
+    #
+    def getIdUser14Day(self):
+        sql = "select id_user from users where date_format(NOW() + interval 14 day, '%d.%m') = date_format(dt_birth, '%d.%m')"
+        return Query.selectData(self, sql)
+
+    #
+    # вывод списка юзеров, чье др наступит через 7 дней
+    #
+    def getIdUser7Day(self):
+        sql = "select id_user from users where date_format(NOW() + interval 7 day, '%d.%m') = date_format(dt_birth, '%d.%m')"
+        return Query.selectData(self, sql)
+
+
+    #
+    # вывод списка юзеров, чье др today
+    #
+    def getIdUserNowDay(self):
+        sql = "select id_user from users where date_format(NOW(), '%d.%m') = date_format(dt_birth, '%d.%m')"
+        return Query.selectData(self, sql)
+
+    ###### -- внутренние функции класса #
 
     # def __init__(self):
     #     print("появился")

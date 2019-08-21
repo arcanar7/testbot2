@@ -1,8 +1,9 @@
 import configparser
-
+import os
 
 config = configparser.ConfigParser()
-config.read("config.ini")
+file = os.path.join(os.path.dirname(__file__), 'config.ini')
+config.read(file)
 token = config["DEFAULT"]["token"]
 db_file = config["Bot Specific"]["db_file"]
 host = config["Bot Specific"]["host"]
