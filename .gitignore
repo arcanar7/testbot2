@@ -1,7 +1,13 @@
 .idea/
 __pycache__/
+dumpMySql/
+env/
+py37-venv/
 venv/
-config.ini
+ssl/
 storage/
 tmp/
-ssl/
+config.ini
+ssql.sql
+test.py
+ttest.py
