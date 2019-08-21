@@ -73,7 +73,7 @@ def gifts(message):
         bot.send_message(message.chat.id, messages.s_gifts, reply_markup=markups.keyboardMain)
 
         for i in gifts_list:
-            msg = f"Название: {i['name']}. Статус:{i['status']}"
+            msg = f"Название: {i['name']}. Статус: {i['status']}"
             bot.send_message(message.chat.id, msg, reply_markup=markups.keyboardMain)
 
         # bot.send_message(message.chat.id, messages.s_gifts + utils.get_users_gifts(bd, message.chat.id),
