@@ -7,113 +7,114 @@ class Query:
     # получение id_user по дате рождения
     #
     def getUserByDtBirth(self, dt_birth):
-        sql = """select id_user from users where date_format(dt_birth, '%d.%m') = date_format('{}', '%d.%m')""".format(dt_birth)
+        sql = f"select id_user from users where date_format(dt_birth, '%d.%m') = date_format('{dt_birth}', '%d.%m')"
         return Query.selectData(self, sql)
 
     #
     # Добавление юзера в БД
     #
     def addUser(self, id_user, id_invite):
-        sql = "insert into users (id_user, dt_add, id_invite) values('{}', now(), '{}')".format(id_user, id_invite)
+        sql = f"insert into users (id_user, dt_add, id_invite) values('{id_user}', now(), '{id_invite}')"
         return Query.insertUpdateData(self, sql)
 
     #
     # Добавление имени юзера в БД
     #
     def addUserName(self, id_user, name):
-        sql = "update users set name = '{}' where id_user = '{}'".format(name, id_user)
+        sql = f"update users set name = '{name}' where id_user = '{id_user}'"
         return Query.insertUpdateData(self, sql)
 
     #
     # Добавление номера телефона юзера в БД
     #
     def addUserPhone(self, id_user, phone):
-        sql = "update users set phone = '{}' where id_user = '{}'".format(phone, id_user)
+        sql = f"update users set phone = '{phone}' where id_user = '{id_user}'"
         return Query.insertUpdateData(self, sql)
 
     #
     # Добавление ДР юзера в БД
     #
     def addUserBirth(self, id_user, birth):
-        sql = "update users set dt_birth = '{}' where id_user = '{}'".format(birth, id_user)
+        sql = f"update users set dt_birth = '{birth}' where id_user = '{id_user}'"
         return Query.insertUpdateData(self, sql)
 
     #
     # Получение списка подарков у события, Таблица подарков событий EVENTS_GIFT
     #
     def getEventGiftsByIdEvent(self, id_event):
-        sql = """
+        sql = f"""
             select 
                 eg.id_gift, gd.cnt
             from events_gift eg
             left join gift_descript gd on gd.id = eg.id_gift
-            where id_event = {}""".format(id_event)
+            where id_event = {id_event}"""
         return Query.selectData(self, sql)
 
     #
     # Получение id, Таблица подарков событий EVENTS_GIFT
     #
     def getidEventGifts(self, id_event, id_gift):
-        sql = "select id from events_gift where id_event = {} and id_gift = {}".format(id_event, id_gift)
+        sql = f"select id from events_gift where id_event = {id_event} and id_gift = {id_gift}"
         return Query.selectData(self, sql)
 
     #
     # Изменение количества подарков, Таблица подарков GIFT_descript
     #
     def changeCountGiftByIdGift(self, id_gift):
-        sql = "update gift_descript set cnt = cnt - 1 where id = {}".format(id_gift)
+        sql = f"update gift_descript set cnt = cnt - 1 where id = {id_gift}"
         return Query.insertUpdateData(self, sql)
 
     #
     # Добавить подарок юзеру, Таблица Журнал получения подарков gift_outs
     #
     def addGiftByUserIdEventGift(self, id_user, id_eventGift):
-        sql = "insert into gift_outs (id_user, id_event_gift, status) values('{}', {}, '{}')".format(id_user, id_eventGift, 'Ожидает выдачи')
+        s = 'Ожидает выдачи'
+        sql = f"insert into gift_outs (id_user, id_event_gift, status) values('{id_user}', {id_eventGift}, {s})"
         return Query.insertUpdateData(self, sql)
 
     #
     # Получение списка подарков юзера gift_outs
     #
     def getGiftByIdUser(self, id_user):
-        sql = """
+        sql = f"""
             select 
                 gd.id, gd.name, gd.img, go.status 
             from gift_outs go 
               left join events_gift eg on eg.id = go.id_event_gift 
               left join gift_descript gd on gd.id = eg.id_gift 
-            where id_user = '{}'
-        """.format(id_user)
+            where id_user = '{id_user}'
+        """
         return Query.selectData(self, sql)
 
     #
     # Получение списка подарков юзера gift_outs
     #
     def getGiftNameById(self, id_gift):
-        sql = """
-            select name, img from gift_descript where id = '{}'
-        """.format(id_gift)
+        sql = f"""
+            select name, img from gift_descript where id = '{id_gift}'
+        """
         return Query.selectData(self, sql)
 
     #
     # Получение id_invite, реферал
     #
     def getid_invite(self, id_user):
-        sql = "select id_invite from users where id_user = {}".format(id_user)
+        sql = f"select id_invite from users where id_user = {id_user}"
         return Query.selectData(self, sql)
 
     #
     # Получить кучу всего по id события
     #
     def getDescriptGiftEventsById(self, id_event):
-        sql = """
+        sql = f"""
             select 
                 gf.id id_gift, gf.cnt, gf.name, gf.img, eg.id id_event_gift, ed.descript
             from events_descript ed
                 left join events_gift eg on eg.id_event = ed.id
                 left join gift_descript gf on gf.id = eg.id_gift
             where
-                ed.id = {}
-        """.format(id_event)
+                ed.id = {id_event}
+        """
         return Query.selectData(self, sql)
 
     #
@@ -133,7 +134,7 @@ class Query:
     # Получить наименование события по id
     #
     def getEventDescriptById(self, id_event):
-        sql = "select descript from events_descript where id = {}".format(id_event)
+        sql = f"select descript from events_descript where id = {id_event}"
         return Query.selectData(self, sql)
 
 
