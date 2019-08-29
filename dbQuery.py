@@ -6,76 +6,83 @@ class Query:
     #
     # получение id_user по дате рождения
     #
-    def getUserByDtBirth(self, dt_birth):
+    def get_user_by_dt_birth(self, dt_birth):
         sql = f"select id_user from users where date_format(dt_birth, '%d.%m') = date_format('{dt_birth}', '%d.%m')"
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
 
     #
     # Добавление юзера в БД
     #
-    def addUser(self, id_user, id_invite):
-        sql = f"insert into users (id_user, dt_add, id_invite) values('{id_user}', now(), '{id_invite}')"
-        return Query.insertUpdateData(self, sql)
+    def add_user(self, id_user, id_invite):
+        sql = f"insert into users (id_user, dt_add, id_invite, id_state) values('{id_user}', now(), '{id_invite}', '1')"
+        return Query.insert_update_data(self, sql)
 
     #
     # Добавление имени юзера в БД
     #
-    def addUserName(self, id_user, name):
+    def add_user_name(self, id_user, name):
         sql = f"update users set name = '{name}' where id_user = '{id_user}'"
-        return Query.insertUpdateData(self, sql)
+        return Query.insert_update_data(self, sql)
 
     #
     # Добавление номера телефона юзера в БД
     #
-    def addUserPhone(self, id_user, phone):
+    def add_user_phone(self, id_user, phone):
         sql = f"update users set phone = '{phone}' where id_user = '{id_user}'"
-        return Query.insertUpdateData(self, sql)
+        return Query.insert_update_data(self, sql)
 
     #
     # Добавление ДР юзера в БД
     #
-    def addUserBirth(self, id_user, birth):
+    def add_user_birth(self, id_user, birth):
         sql = f"update users set dt_birth = '{birth}' where id_user = '{id_user}'"
-        return Query.insertUpdateData(self, sql)
+        return Query.insert_update_data(self, sql)
+
+    #
+    # Добавление состояния юзера в БД
+    #
+    def add_user_state(self, id_user, state):
+        sql = f"update users set id_state = '{state}' where id_user = '{id_user}'"
+        return Query.insert_update_data(self, sql)
 
     #
     # Получение списка подарков у события, Таблица подарков событий EVENTS_GIFT
     #
-    def getEventGiftsByIdEvent(self, id_event):
+    def get_event_gifts_by_id_event(self, id_event):
         sql = f"""
             select 
                 eg.id_gift, gd.cnt
             from events_gift eg
             left join gift_descript gd on gd.id = eg.id_gift
             where id_event = {id_event}"""
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
 
     #
     # Получение id, Таблица подарков событий EVENTS_GIFT
     #
-    def getidEventGifts(self, id_event, id_gift):
+    def get_id_event_gifts(self, id_event, id_gift):
         sql = f"select id from events_gift where id_event = {id_event} and id_gift = {id_gift}"
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
 
     #
     # Изменение количества подарков, Таблица подарков GIFT_descript
     #
-    def changeCountGiftByIdGift(self, id_gift):
+    def change_count_gift_by_id_gift(self, id_gift):
         sql = f"update gift_descript set cnt = cnt - 1 where id = {id_gift}"
-        return Query.insertUpdateData(self, sql)
+        return Query.insert_update_data(self, sql)
 
     #
     # Добавить подарок юзеру, Таблица Журнал получения подарков gift_outs
     #
-    def addGiftByUserIdEventGift(self, id_user, id_eventGift):
+    def add_gift_by_user_id_event_gift(self, id_user, id_event_gift):
         s = 'Ожидает выдачи'
-        sql = f"insert into gift_outs (id_user, id_event_gift, status) values('{id_user}', {id_eventGift}, {s})"
-        return Query.insertUpdateData(self, sql)
+        sql = f"insert into gift_outs (id_user, id_event_gift, status) values('{id_user}', {id_event_gift}, {s})"
+        return Query.insert_update_data(self, sql)
 
     #
     # Получение списка подарков юзера gift_outs
     #
-    def getGiftByIdUser(self, id_user):
+    def get_gift_by_id_user(self, id_user):
         sql = f"""
             select 
                 gd.id, gd.name, gd.img, go.status 
@@ -84,28 +91,35 @@ class Query:
               left join gift_descript gd on gd.id = eg.id_gift 
             where id_user = '{id_user}'
         """
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
 
     #
     # Получение списка подарков юзера gift_outs
     #
-    def getGiftNameById(self, id_gift):
+    def get_gift_name_by_id(self, id_gift):
         sql = f"""
             select name, img from gift_descript where id = '{id_gift}'
         """
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
 
     #
     # Получение id_invite, реферал
     #
-    def getid_invite(self, id_user):
+    def get_id_invite(self, id_user):
         sql = f"select id_invite from users where id_user = {id_user}"
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
+
+    #
+    # Получение id_state, состояние
+    #
+    def get_id_state(self, id_user):
+        sql = f"select id_state from users where id_user = {id_user}"
+        return Query.select_data(self, sql)
 
     #
     # Получить кучу всего по id события
     #
-    def getDescriptGiftEventsById(self, id_event):
+    def get_descript_gift_events_by_id(self, id_event):
         sql = f"""
             select 
                 gf.id id_gift, gf.cnt, gf.name, gf.img, eg.id id_event_gift, ed.descript
@@ -115,52 +129,64 @@ class Query:
             where
                 ed.id = {id_event}
         """
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
 
     #
     # Получение всех полей и всех юзеров
     #
-    def getUsers(self):
+    def get_users(self):
         sql = 'select * from users'
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
 
     #
     # Для тестирования select-запросов
     #
-    def getMySelect(self, sql):
-        return Query.selectData(self, sql)
+    def get_my_select(self, sql):
+        return Query.select_data(self, sql)
+
+    #
+    # Для тестирования select-запросов
+    #
+    def get_my_update(self, sql):
+        return Query.insert_update_data(self, sql)
 
     #
     # Получить наименование события по id
     #
-    def getEventDescriptById(self, id_event):
+    def get_event_descript_by_id(self, id_event):
         sql = f"select descript from events_descript where id = {id_event}"
-        return Query.selectData(self, sql)
-
+        return Query.select_data(self, sql)
 
     #
     # вывод списка юзеров, чье др наступит через 14 дней
     #
-    def getIdUser14Day(self):
-        sql = "select id_user from users where date_format(NOW() + interval 14 day, '%d.%m') = date_format(dt_birth, '%d.%m')"
-        return Query.selectData(self, sql)
+    def get_id_user_14_day(self):
+        sql = """select 
+                    id_user 
+                 from users 
+                 where 
+                    date_format(NOW() + interval 14 day, '%d.%m') = date_format(dt_birth, '%d.%m')"""
+        return Query.select_data(self, sql)
 
     #
     # вывод списка юзеров, чье др наступит через 7 дней
     #
-    def getIdUser7Day(self):
-        sql = "select id_user from users where date_format(NOW() + interval 7 day, '%d.%m') = date_format(dt_birth, '%d.%m')"
-        return Query.selectData(self, sql)
-
+    def get_id_user_7_day(self):
+        sql = """select 
+                    id_user 
+                 from users 
+                 where 
+                    date_format(NOW() + interval 7 day, '%d.%m') = date_format(dt_birth, '%d.%m')"""
+        return Query.select_data(self, sql)
 
     #
     # вывод списка юзеров, чье др today
     #
-    def getIdUserNowDay(self):
+    def get_id_user_now_day(self):
         sql = "select id_user from users where date_format(NOW(), '%d.%m') = date_format(dt_birth, '%d.%m')"
-        return Query.selectData(self, sql)
+        return Query.select_data(self, sql)
 
-    ###### -- внутренние функции класса #
+    # -- внутренние функции класса #
 
     # def __init__(self):
     #     print("появился")
@@ -179,8 +205,7 @@ class Query:
 
     # -- универсальный select
     @staticmethod
-    def selectData(self, sql):
-        # conn = self.conn
+    def select_data(self, sql):
         conn = pymysql.connect(
             host=config.host,
             user=config.user,
@@ -207,7 +232,7 @@ class Query:
 
     # -- универсальный insert/update
     @staticmethod
-    def insertUpdateData(self, sql):
+    def insert_update_data(self, sql):
         # conn = self.conn
         conn = pymysql.connect(
             host=config.host,

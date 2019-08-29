@@ -1,6 +1,5 @@
 import telebot
 import config
-import dbworker
 import datetime
 import utils
 import markups
@@ -11,25 +10,24 @@ from dbQuery import Query
 import cherrypy
 
 
-bd = Query()
+db = Query()
 bot = telebot.TeleBot(config.token)
 # bot_name = telebot.TeleBot(config.bot_name)
 
 
-# Начало диалога
+# Начало диалога.
 @bot.message_handler(commands=["start"])
 def cmd_start(message):
-    # Проверяем текущее состояние пользователя и отправляем ему соответствующее сообщение
-    user_valid = utils.validate_state(bd, message)
+    user_valid = utils.validate_state(db, message)  # Проверяем состояние пользователя
     bot.send_message(message.chat.id, user_valid[0], reply_markup=user_valid[1])
 
 
 # Ловим имя
-@bot.message_handler(func=lambda message: utils.validate_state2(message.chat.id, utils.States.S_ENTER_NAME.value))
+@bot.message_handler(func=lambda message: utils.validate_state2(db, message.chat.id, utils.States.S_ENTER_NAME.value))
 def user_entering_name(message):
     bot.send_message(message.chat.id, messages.s_phone, reply_markup=markups.keyboardPhone)
-    dbworker.set_state(message.chat.id, utils.States.S_PHONE.value)  # Меняем состояние
-    bd.addUserName(message.chat.id, message.text)  # Добавляем имя в базу
+    db.add_user_state(message.chat.id, utils.States.S_PHONE.value)  # Меняем состояние
+    db.add_user_name(message.chat.id, message.text)  # Добавляем имя в базу
 
 
 # Ловим номер телефона
@@ -40,18 +38,17 @@ def read_contact_data(message):
         return
     else:
         bot.send_message(message.chat.id, messages.s_birth, reply_markup=markups.hide_markup)
-        dbworker.set_state(message.chat.id, utils.States.S_BIRTHDAY.value)  # Меняем состояние
-        bd.addUserPhone(message.chat.id, message.contact.phone_number)  # Добавляем телефон в базу
+        db.add_user_state(message.chat.id, utils.States.S_BIRTHDAY.value)  # Меняем состояние
+        db.add_user_phone(message.chat.id, message.contact.phone_number)  # Добавляем телефон в базу
 
 
 # Ловим дату рождения
-@bot.message_handler(func=lambda message: utils.validate_state2(message.chat.id, utils.States.S_BIRTHDAY.value))
+@bot.message_handler(func=lambda message: utils.validate_state2(db, message.chat.id, utils.States.S_BIRTHDAY.value))
 def user_entering_birthday(message):
     # Проверка на дату
     if utils.validate_date(message.text) is False:
         bot.send_message(message.chat.id, messages.s_birth_error)
         return
-    # На данном этапе мы уверены, что message.text можно преобразовать в дату, поэтому ничем не рискуем
     birthday = utils.convert_date(message.text)
     current_date = datetime.datetime.now()
 
@@ -60,16 +57,16 @@ def user_entering_birthday(message):
         return
     else:
         # Дата рождения введена корректно, можно идти дальше
-        dbworker.set_state(message.chat.id, utils.States.S_MENU.value)  # Меняем состояние
-        bd.addUserBirth(message.chat.id, birthday)  # Добавляем ДР в базу
-        utils.validate_ref(bd, bot, message.chat.id)  # Дарим подарок
+        db.add_user_state(message.chat.id, utils.States.S_MENU.value)  # Меняем состояние
+        db.add_user_birth(message.chat.id, birthday)  # Добавляем ДР в базу
+        utils.validate_ref(db, bot, message.chat.id)  # Дарим подарок
         bot.send_message(message.chat.id, messages.s_menu, reply_markup=markups.keyboardMain)
 
 
 @bot.message_handler(commands=["Подарки"])
 def gifts(message):
-    if utils.validate_state2(message.chat.id, utils.States.S_MENU.value):
-        gifts_list = utils.get_users_gifts(bd, message.chat.id)
+    if utils.validate_state2(db, message.chat.id, utils.States.S_MENU.value):
+        gifts_list = utils.get_users_gifts(db, message.chat.id)
         bot.send_message(message.chat.id, messages.s_gifts, reply_markup=markups.keyboardMain)
 
         for i in gifts_list:
@@ -82,7 +79,7 @@ def gifts(message):
 
 @bot.message_handler(commands=["Пригласить_друга"])
 def invite_friend(message):
-    if utils.validate_state2(message.chat.id, utils.States.S_MENU.value):
+    if utils.validate_state2(db, message.chat.id, utils.States.S_MENU.value):
         user_id = str(message.chat.id)
         # bot_name = 'vlgTest1Bot'
         # bot_name = telebot.TeleBot(config.bot_name)
@@ -101,17 +98,15 @@ def something_wrong(message):
     bot.send_message(message.chat.id, messages.s_text, reply_markup=markups.keyboardMain)
 
 
-#--------
+# --------
 
 WEBHOOK_HOST = '54.186.203.196'     # используемый ip сервера
 WEBHOOK_PORT = 443               # 443, 80, 88 или 8443 (порт должен быть открыт!)
 WEBHOOK_LISTEN = '0.0.0.0'   # На некоторых серверах придется указывать такой же IP, что и выше
-
 WEBHOOK_SSL_CERT = 'ssl/webhook_cert.pem'  # Путь к сертификату
 WEBHOOK_SSL_PRIV = 'ssl/webhook_pkey.pem'  # Путь к приватному ключу
-
 WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
-WEBHOOK_URL_PATH = "/%s/" % (config.token)
+WEBHOOK_URL_PATH = "/%s/" % config.token
 
 
 # Наш вебхук-сервер
@@ -133,10 +128,10 @@ class WebhookServer(object):
 
 
 if __name__ == '__main__':
+    bot.remove_webhook()
     # bot.polling(none_stop=True)
 
     # Снимаем вебхук перед повторной установкой (избавляет от некоторых проблем)
-    bot.remove_webhook()
 
     # Ставим заново вебхук
     bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH, certificate=open(WEBHOOK_SSL_CERT, 'r'))

@@ -8,18 +8,18 @@ from dbQuery import Query
 bot = telebot.TeleBot(config.token)
 db = Query()
 
-listId = db.getIdUser14Day()
+listId = db.get_id_user_14_day()
 if listId:
     for item in listId:
         bot.send_message(item['id_user'], messages.s_birth_14, reply_markup=markups.keyboardMain)
         utils.gift_giving(db,bot, item['id_user'], 4)
 
-listId = db.getIdUser7Day()
+listId = db.get_id_user_7_day()
 if listId:
     for item in listId:
         bot.send_message(item['id_user'], messages.s_birth_7, reply_markup=markups.keyboardMain)
 
-listId = db.getIdUserNowDay()
+listId = db.get_id_user_now_day()
 if listId:
     for item in listId:
         bot.send_message(item['id_user'], messages.s_birth_0, reply_markup=markups.keyboardMain)
