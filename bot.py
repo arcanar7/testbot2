@@ -26,7 +26,6 @@ def cmd_start(message):
 @bot.message_handler(func=lambda message: utils.validate_state2(db, message.chat.id, utils.States.S_ENTER_NAME.value))
 def user_entering_name(message):
     bot.send_message(message.chat.id, messages.s_phone, reply_markup=markups.keyboardPhone)
-    db.add_user_state(message.chat.id, utils.States.S_PHONE.value)  # Меняем состояние
     db.add_user_name(message.chat.id, message.text)  # Добавляем имя в базу
 
 
@@ -38,7 +37,6 @@ def read_contact_data(message):
         return
     else:
         bot.send_message(message.chat.id, messages.s_birth, reply_markup=markups.hide_markup)
-        db.add_user_state(message.chat.id, utils.States.S_BIRTHDAY.value)  # Меняем состояние
         db.add_user_phone(message.chat.id, message.contact.phone_number)  # Добавляем телефон в базу
 
 
@@ -46,7 +44,7 @@ def read_contact_data(message):
 @bot.message_handler(func=lambda message: utils.validate_state2(db, message.chat.id, utils.States.S_BIRTHDAY.value))
 def user_entering_birthday(message):
     # Проверка на дату
-    if utils.validate_date(message.text) is False:
+    if utils.validate_date(message.text):
         bot.send_message(message.chat.id, messages.s_birth_error)
         return
     birthday = utils.convert_date(message.text)
@@ -57,7 +55,6 @@ def user_entering_birthday(message):
         return
     else:
         # Дата рождения введена корректно, можно идти дальше
-        db.add_user_state(message.chat.id, utils.States.S_MENU.value)  # Меняем состояние
         db.add_user_birth(message.chat.id, birthday)  # Добавляем ДР в базу
         utils.validate_ref(db, bot, message.chat.id)  # Дарим подарок
         bot.send_message(message.chat.id, messages.s_menu, reply_markup=markups.keyboardMain)

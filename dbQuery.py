@@ -21,21 +21,21 @@ class Query:
     # Добавление имени юзера в БД
     #
     def add_user_name(self, id_user, name):
-        sql = f"update users set name = '{name}' where id_user = '{id_user}'"
+        sql = f"update users set name = '{name}', id_state = '2' where id_user = '{id_user}'"
         return Query.insert_update_data(self, sql)
 
     #
     # Добавление номера телефона юзера в БД
     #
     def add_user_phone(self, id_user, phone):
-        sql = f"update users set phone = '{phone}' where id_user = '{id_user}'"
+        sql = f"update users set phone = '{phone}', id_state = '3' where id_user = '{id_user}'"
         return Query.insert_update_data(self, sql)
 
     #
     # Добавление ДР юзера в БД
     #
     def add_user_birth(self, id_user, birth):
-        sql = f"update users set dt_birth = '{birth}' where id_user = '{id_user}'"
+        sql = f"update users set dt_birth = '{birth}', id_state = '4' where id_user = '{id_user}'"
         return Query.insert_update_data(self, sql)
 
     #

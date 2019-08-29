@@ -10,9 +10,9 @@ def validate_date(date_text):
     try:
         if date_text != datetime.datetime.strptime(date_text, "%d.%m.%Y").strftime("%d.%m.%Y"):
             raise ValueError
-        return True
-    except ValueError:
         return False
+    except ValueError:
+        return True
 
 
 # Преобразование строки в дату
@@ -86,7 +86,7 @@ def validate_state(db, message):
             s = messages.s_menu
             markup = markups.keyboardMain
     except TypeError:
-        s = messages.s_hello  # состояние "0" - начало диалога
+        s = messages.s_hello
         if len(text) > 6:
             db.add_user(user_id, text[7:])
         else:
